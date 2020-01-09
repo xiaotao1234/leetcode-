@@ -1,4 +1,8 @@
 package 多线程;
+
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Semaphore;
+
 //我们提供了一个类：
 //
 //public class Foo {
@@ -22,14 +26,10 @@ class Foo {
     private boolean sendFinished;
     private Object lock = new Object();
 
-    public Foo() {
-
-    }
-
+    //解法一：Synchronized锁和控制变量（这里的控制变量为firstFinished和sendFinished）
     public void first(Runnable printFirst) throws InterruptedException {
 
-        // printFirst.run() outputs "first". Do not change or remove this line.
-        synchronized (lock){
+        synchronized (lock) {
             printFirst.run();
             firstFinished = true;
             lock.notifyAll();
@@ -38,9 +38,8 @@ class Foo {
 
     public void second(Runnable printSecond) throws InterruptedException {
 
-        // printSecond.run() outputs "second". Do not change or remove this line.
-        synchronized (lock){
-            while (firstFinished==false){
+        synchronized (lock) {
+            while (firstFinished == false) {
                 lock.wait();
             }
             printSecond.run();
@@ -51,12 +50,91 @@ class Foo {
 
     public void third(Runnable printThird) throws InterruptedException {
 
-        // printThird.run() outputs "third". Do not change or remove this line.
-        synchronized (lock){
-            while (sendFinished==false){
+        synchronized (lock) {
+            while (sendFinished == false) {
                 lock.wait();
             }
             printThird.run();
         }
     }
+
+    //解法二：CountDownLatch方式
+    //CountDownLatch主要作用是当前线程执行到countDownLatch.await()时，
+    // 会去检查当前的countDownLatch中的count是否为0，为0才能继续向下执行，
+    // 否者会被阻塞，当其他持有这个countDownLatch的线程调用countDown时，
+    // 这个countDownLatch中的count会被减1，当其减少到0时，就会唤醒被当前countDownLatch
+    // 阻塞的线程。
+    private CountDownLatch countDownLatch1;
+    private CountDownLatch countDownLatch2;
+
+    public Foo() {
+        countDownLatch1 = new CountDownLatch(1);
+        countDownLatch2 = new CountDownLatch(1);
+    }
+
+    public void first1(Runnable printFirst) throws InterruptedException {
+        printFirst.run();
+        countDownLatch1.countDown();
+    }
+
+    public void second1(Runnable printSecond) throws InterruptedException {
+        countDownLatch1.await();
+        printSecond.run();
+        countDownLatch2.countDown();
+    }
+
+
+    public void third1(Runnable printThird) throws InterruptedException {
+        countDownLatch2.await();
+        printThird.run();
+
+    }
+
+
+
+    //解法三：Semaphore，相当于一个拥有一定数量的停车场（数量基于定义），semaphore.acquire()相当于请求停车，若请求成功停车，则semphore的内部数量减1，
+    //semaphore.release()相当于车辆离开停车场，semaphore的内部数量加一，其会唤醒等待的线程中的一个
+    private Semaphore semaphore1,semaphore2;
+    public void Foo11(){
+        semaphore1 = new Semaphore(0);
+        semaphore2 = new Semaphore(0);
+    }
+
+    public void  first2(Runnable printfirst){
+        printfirst.run();
+        semaphore1.release();
+    }
+
+    public void sencond2(Runnable printsend) throws InterruptedException {
+        semaphore1.acquire();
+        printsend.run();
+        semaphore2.release();
+    }
+
+    public void third2(Runnable thirdsned) throws InterruptedException {
+        semaphore2.acquire();
+        thirdsned.run();
+    }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
