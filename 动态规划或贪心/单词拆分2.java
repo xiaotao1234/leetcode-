@@ -29,7 +29,7 @@ public class 单词拆分2 {
         LinkedList<String> res = new LinkedList<>();
         if (start == s.length()) {
             res.add("");
-        }
+        }//递归结束条件
         for (int end = start + 1; end <= s.length(); end++) {
             if (wordDict.contains(s.substring(start, end))) {
                 List<String> list = word_Break(s, wordDict, end);
@@ -73,13 +73,13 @@ public class 单词拆分2 {
         LinkedList<String>[] dp = new LinkedList[s.length() + 1];
         LinkedList<String> initial = new LinkedList<>();
         initial.add("");
-        dp[0] = initial;
-        for (int i = 1; i <= s.length(); i++) {
+        dp[0] = initial;//为子类型为LinkedList<String>的数组添加第一个空元素
+        for (int i = 1; i <= s.length(); i++) {//以i为end结束位置的确定。
             LinkedList<String> list = new LinkedList<>();
-            for (int j = 0; j < i; j++) {
-                if (dp[j].size() > 0 && wordDict.contains(s.substring(j, i))) {
-                    for (String l : dp[j]) {
-                        list.add(l + (l.equals("") ? "" : " ") + s.substring(j, i));
+            for (int j = 0; j < i; j++) {//以i为结束，j为开始的部分进行遍历
+                if (dp[j].size() > 0 && wordDict.contains(s.substring(j, i))) { //如果0，j位置的字符存在可完全构建的子串，且j，i位置的字符也在字典中存在
+                    for (String l : dp[j]) {//对0，j存在的可构建子串的每个串添加上j，i的字符后添加到list中，list作为0，i位置（dp[i]）的dp结果进行保存
+                        list.add(l + (l.equals("") ? "" : " ") + s.substring(j, i));//若0，j为“”，则代表为头部，则不插入“ ”，否者插入一个“ ”来满足插入一个空格隔开的题意要求
                     }
                 }
             }
@@ -89,3 +89,43 @@ public class 单词拆分2 {
     }
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
