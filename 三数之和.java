@@ -3,67 +3,79 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+//给定一个包含 n 个整数的数组 nums，判断 nums 中是否存在三个元素 a，b，c ，使得 a + b + c = 0 ？找出所有满足条件且不重复的三元组。
+//
+//注意：答案中不可以包含重复的三元组。
+//
+//来源：力扣（LeetCode）
+//链接：https://leetcode-cn.com/problems/3sum
+//著作权归领扣网络所有。商业转载请联系官方授权，非商业转载请注明出处。
 public class 三数之和 {
     public static void main(String[] args) {
         三数之和 s = new 三数之和();
-        System.out.println(s.threeSum(new int[]{-2,0,3,-1,4,0,3,4,1,1,1,-3,-5,4,0}));
+        System.out.println(s.threeSum(new int[]{3, 0, -2, -1, 1, 2}));
     }
 
-    List<List<Integer>> lists = new ArrayList<>();
-
-    public List<List<Integer>> threeSum(int[] nums) {
-        List<Integer> list = new ArrayList<>();
-        for (int i : nums) {
-            list.add(i);
+    public List<List<Integer>> threeSum(int[] nums) {//首先我们先抓几个要点
+        //1.满足条件a+b+c=0
+        //2.不重复
+        List<List<Integer>> lists = new ArrayList<>();
+        if (nums.length < 3) {
+            return lists;
         }
-        Collections.sort(list);
-        if (list.size() == 0 || list.get(0) > 0 || list.get(list.size() - 1) < 0) {
-            return new ArrayList<>();
+        Arrays.sort(nums);
+        for (int i = 0; i < nums.length; i++) {
+            if (nums[i] > 0) break;
+            if (i > 0 && nums[i] == nums[i - 1]) continue;
+            int left = i + 1;
+            int right = nums.length - 1;
+            while (left < right) {
+                int sum = nums[left] + nums[right] + nums[i];
+                if (sum == 0) {//满足条件和为0
+                    lists.add(Arrays.asList(nums[i], nums[left], nums[right]));
+                    while (left < right && nums[left] == nums[left + 1])
+                        left++;//去重，即在加入当前元素为最小数的所有组合后，循环对其后面的元素进行判断直到跳过所有的元素值相同的节点，避免了得到重复解
+                    while (left < right && nums[right] == nums[right - 1])
+                        right--;//同上
+                    left++;
+                    right--;//将左右标都进行转移
+                } else if (sum <= 0) {
+                    left++;//三数和小于0，为了增大和到0，所以要将左标右移
+                } else {
+                    right--;//同上
+                }
+            }
         }
-        get(list);
         return lists;
     }
 
-    public void get(List<Integer> list) {
-        for (int i = 0; i < list.size(); i++) {
-            if (list.get(i) > 0) {
+    public List<List<Integer>> threeSum1(int[] nums) {
+        List<List<Integer>> lists = new ArrayList<>();
+        if (nums.length < 3) {
+            return lists;
+        }
+        Arrays.sort(nums);
+        for (int i = 0; i < nums.length; i++) {
+            if(nums[i]>0){
                 break;
             }
-            if (i > 0 && list.get(i - 1) == list.get(i)) {
-                continue;
-            }
-            int Left = i + 1;
-            int Right = list.size() - 1;
-            while (Left < Right) {
-                int num = list.get(i) + list.get(Left) + list.get(Right);
-                if (num == 0) {
-                    lists.add(Arrays.asList(list.get(i), list.get(Left), list.get(Right)));
-                    while (list.get(Left)==list.get(Left+1))Left++;
-                    while (list.get(Right)==list.get(Right-1))Right--;
-                    Left++;
-                    Right--;
-                }else if(num<0){
-                    Left++;
-                }else if(num>0){
-                    Right--;
+            int left = i + 1;
+            int right = nums.length - 1;
+            while (left < right) {
+                int sum = nums[i] + nums[left] + nums[right];
+                if (sum == 0) {
+                    lists.add(Arrays.asList(nums[i], nums[left], nums[right]));
+                    while (left < right && nums[left] == nums[left + 1]) left++;
+                    while (left < right && nums[right] == nums[right - 1]) right--;
+                    left++;
+                    right--;
+                } else if (sum < 0) {
+                    left++;
+                } else {
+                    right--;
                 }
             }
-//            for (int j = i + 1; j < list.size() - 1; j++) {
-//                List<Integer> list1 = new ArrayList<>();
-//                list1.add(list.get(i));
-//                list1.add(list.get(j));
-//                list1.add(-list1.get(0) - list1.get(1));
-//                Collections.sort(list1);
-//                if (!lists.contains(list1)) {
-//                    int index = list.subList(j + 1, list.size()).indexOf(-list.get(i) - list.get(j)) + j + 1;
-//                    if (index != -1) {
-//                        if (index > j) {
-//                            if (!lists.contains(list1))
-//                                lists.add(list1);
-//                        }
-//                    }
-//                }
-//            }
         }
+        return lists;
     }
 }
